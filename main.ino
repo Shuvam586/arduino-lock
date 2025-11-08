@@ -1,7 +1,10 @@
+#include <Wire.h>
 #include <Servo.h>
 #include <Keypad.h>
+#include <LiquidCrystal_I2C.h>
 
 Servo ServoMotor;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 const char* password = "567";  
 char input[4]; 
@@ -24,6 +27,14 @@ int BuzzerPin = 12;
 bool isLocked = true;
 
 void setup() {
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(0, 0); // column, row
+  lcd.print("hello nakul bhai");
+  lcd.setCursor(0, 1);
+  lcd.print("kaise ho aap?");
+
   pinMode(SensorPin, INPUT);
   pinMode(BuzzerPin, OUTPUT);
   ServoMotor.attach(11);
@@ -51,6 +62,7 @@ void loop() {
     input[inputIndex] = '\0'; 
     if (strcmp(input, password) == 0) {
       unlockDoor();
+      resetInput();
     } else {
       digitalWrite(BuzzerPin, HIGH); delay(500);
       digitalWrite(BuzzerPin, LOW);  delay(50);
@@ -63,17 +75,34 @@ void loop() {
     delay(50);
     digitalWrite(BuzzerPin, LOW);
     delay(50);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Intruder");
+    lcd.setCursor(0, 1);
+    lcd.print("Detected!");
   }
 }
 
 void unlockDoor() {
-  ServoMotor.write(180);
+  ServoMotor.write(0);
   isLocked = false;
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Correct Password");
+  lcd.setCursor(0, 1);
+  lcd.print("Door unlocked!");
 }
 
 void lockDoor() {
-  ServoMotor.write(0);
+  ServoMotor.write(180);
   isLocked = true;
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Security System");
+  lcd.setCursor(0, 1);
+  lcd.print("Activated!");
 }
 
 
